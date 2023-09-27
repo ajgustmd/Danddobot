@@ -13,8 +13,9 @@ module.exports = {
 	}
 	if (process.getuid() == 0) {
 		const spawn = require("child_process").spawn;
-		console.log(__dirname);
-		const pythonProcess = spawn('python3', ["../sc/restart.py"]);
+		//console.log(__dirname);
+		console.log(process.cwd());
+		const pythonProcess = spawn('python3', ["./sc/restart.py"]);
 		await interaction.reply('좀보이드 서버를 재시작하도록 하겠다');
 		isNotServerOpening = false;
 		pythonProcess.stdout.on('data', (data) => {
