@@ -1,19 +1,15 @@
-# id = 1001
 """
 import os
 import pwd
 
 id = pwd.getpwnam(user)
 
-print(id.pw_uid)
-print(id.pw_gid)
-
 os.setuid(id.pw_uid)
 os.setgid(id.pw_gid)
 """
 
 import subprocess
-# import sys
+import sys
 
 # ServerDir 은 start-server.sh 파일이 있는 폴더를 말함
 
@@ -27,6 +23,7 @@ ServerName = "restarttest"
 screenSession = "pz_test"
 """
 
+"""
 user = "pz_tarkov"
 sh_path = "/home/pz_tarkov/restart.sh"
 log_path = "/home/pz_tarkov/Zomboid/server-console.txt"
@@ -34,11 +31,23 @@ log_path = "/home/pz_tarkov/Zomboid/server-console.txt"
 ServerDir = "/home/pz_tarkov"
 ServerName = "pz_tarkov"
 screenSession = "pz_tarkov"
+"""
+sh_path = "/home/dev/DanddoBot/restart.sh"
+
+user = "pz_danddo"
+log_path = "/home/pz_danddo/Zomboid/server-console.txt"
+
+ServerDir = "/home/pz_danddo"
+ServerName = "danddo"
+screenSession = "pz_danddo"
+
+import os
+print(os.getcwd())
+sys.stdout.flush()
 
 # f = subprocess.run([sh_path])
 # f = subprocess.Popen(["bash", sh_path], user=user, group=user, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-f = subprocess.Popen(["bash", sh_path, ServerDir, ServerName, screenSession], user=user, group=user)
-
+f = subprocess.Popen(["bash", sh_path, ServerDir, ServerName, screenSession], user=user, group=user, stdout = subprocess.PIPE, stderr=subprocess.PIPE)
 log_p = subprocess.Popen(['tail', '-f', log_path], user=user, group=user, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 line = ""
 isServerOpened = False
@@ -52,7 +61,7 @@ while not isServerOpened:
         if "SERVER STARTED" in log:
             isServerOpened = True
             print("SERVER_STARTED")
-            # sys.stdout.flush()
+            sys.stdout.flush()
             break
 
 """
