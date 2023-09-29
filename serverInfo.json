@@ -1,6 +1,7 @@
 {
     "projectzomboid" : {
         "name" : "프로젝트 좀보이드",
+        "sh_path" : "/home/dev/DanddoBot/zomboid.sh",
         "server" : {
             "danddo" : {
                 "name" : "단또",

@@ -4,25 +4,24 @@ import sys
 
 # ServerDir 은 start-server.sh 파일이 있는 폴더를 말함
 
-sh_path = "/home/dev/DanddoBot/restart.sh" # 게임에 따라 결정
-
-user = "pz_danddo"
+sh_path = sys.argv[1]
 
 # you can use './server | tee -a log.txt' if the server program doesn't provide realtime logging file
-log_path = "/home/pz_danddo/Zomboid/server-console.txt" # 게임에 따라 없을 수 있음, 다만 디폴트 설정 할만 함
 
-ServerDir = "/home/pz_danddo"
-ServerName = "danddo" # 게임에 따라 없을 수 있음, 다만 디폴트 설정 할만 함
-screenSession = "pz_danddo"
+user = sys.argv[2]
+dir = sys.argv[3]
+session = sys.argv[4]
+servername = sys.argv[5]
+log = sys.argv[6]
 
-f = subprocess.Popen(["bash", sh_path, ServerDir, ServerName, screenSession], user=user, group=user)
+f = subprocess.Popen(["bash", sh_path, dir, servername, session], user=user, group=user)
 
 # create log_path file if it doesn't exist
-log = subprocess.Popen(['tail', '-f', log_path], user=user, group=user, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+logtail = subprocess.Popen(['tail', '-f', log], user=user, group=user, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 isServerOpened = False
 
 while not isServerOpened:
-    line = log.stdout.readline().decode("utf-8") 
+    line = logtail.stdout.readline().decode("utf-8") 
     if "SERVER STARTED" in line:
         isServerOpened = True
         print("SERVER_STARTED")

@@ -69,6 +69,7 @@ module.exports = {
 function restartServer(interaction, gameName, serverName) {
 	if (process.getuid() == 0) {
         var info = JSON.parse(fs.readFileSync(infoPath));
+        var sh_path = info[gameName].sh_path;
         info = info[gameName].server[serverName];
         var user = info.user;
         var dir = info.dir;
@@ -76,7 +77,7 @@ function restartServer(interaction, gameName, serverName) {
         var servername = info.servername;
         var log = info.log;
 		const spawn = require("child_process").spawn;
-		const pythonProcess = spawn('python3', ["./sc/restart.py", user, dir, session, servername, log]);
+		const pythonProcess = spawn('python3', ["./sc/restart.py", sh_path, user, dir, session, servername, log]);
 		interaction.reply('서버를 재시작하도록 하겠다');
 		isServerOpening[gameName][serverName] = true;
 		pythonProcess.stdout.on('data', (data) => {
