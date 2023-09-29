@@ -3,7 +3,12 @@
         "name" : "프로젝트 좀보이드",
         "server" : {
             "danddo" : {
-                "name" : "단또"
+                "name" : "단또",
+                "user" : "pz_danddo",
+                "dir" : "/home/pz_danddo",
+                "session" : "pz_danddo",
+                "servername" : "danddo",
+                "log" : "/home/pz_danddo/Zomboid/server-console.txt" 
             }
         }
     },

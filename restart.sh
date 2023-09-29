@@ -8,6 +8,7 @@ ServerName=$2
 screenSession=$3
 
 # 서버가 돌고있는지 먼저 판단
+# ps -au 로 고쳐서 유저정보 확인하기
 isProcessRunning=$(ps a | grep -v 'grep' | grep -c "ProjectZomboid64 -servername $ServerName")
 
 if [ $isProcessRunning -eq 1 ]

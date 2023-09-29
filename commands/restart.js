@@ -2,9 +2,10 @@ const { SlashCommandBuilder } = require('discord.js');
 
 const fs = require('node:fs');
 
-// server restart, kill, update
+// server restart, kill, update 추가 예정
 
 isServerOpening = {};
+const infoPath = "./serverInfo.json";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -21,7 +22,7 @@ module.exports = {
     async autocomplete(interaction) {
         const focusedOption = interaction.options.getFocused(true);
         let choices = [];
-        serverInfo = JSON.parse(fs.readFileSync("./serverInfo.json"));
+        serverInfo = JSON.parse(fs.readFileSync(infoPath));
 
         if (focusedOption.name === '게임') {
             for(var e in serverInfo) {
@@ -67,8 +68,15 @@ module.exports = {
 
 function restartServer(interaction, gameName, serverName) {
 	if (process.getuid() == 0) {
+        var info = JSON.parse(fs.readFileSync(infoPath));
+        info = info[gameName].server[serverName];
+        var user = info.user;
+        var dir = info.dir;
+        var session = info.session;
+        var servername = info.servername;
+        var log = info.log;
 		const spawn = require("child_process").spawn;
-		const pythonProcess = spawn('python3', ["./sc/restart.py"]);
+		const pythonProcess = spawn('python3', ["./sc/restart.py", user, dir, session, servername, log]);
 		interaction.reply('서버를 재시작하도록 하겠다');
 		isServerOpening[gameName][serverName] = true;
 		pythonProcess.stdout.on('data', (data) => {
