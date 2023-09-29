@@ -1,0 +1,15 @@
+{
+    "projectzomboid" : {
+        "name" : "프로젝트 좀보이드",
+        "server" : {
+            "danddo" : {
+                "name" : "단또"
+            }
+        }
+    },
+    "corekeeper" : {
+        "name" : "코어키퍼",
+        "server" : {
+        }
+    }
+}
