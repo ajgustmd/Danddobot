@@ -3,13 +3,6 @@ const { token } = require('./config.json');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { OpenAI } = require("openai");
-const { openaikey } = require('./config.json');
-
-const openai = new OpenAI({
-    apiKey : openaikey
-});
-
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 client.commands = new Collection();
@@ -72,9 +65,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
 const messageEventIDList = [["1064804888460136478", "1064804888908931104"], ["777363929155371048", "1157359602401288223"]];
 
-const max_remeber_context = 4;
-ai_context = []
-
 client.on(Events.MessageCreate, async interaction => {
     if(interaction.type == 20 || interaction.author == client.user) return;
     var msgAllowed = false;
@@ -82,46 +72,10 @@ client.on(Events.MessageCreate, async interaction => {
         if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
     }
     if(msgAllowed) {
-        // 이 아래부터 다른 하나의 코드가 관리
-        var input = {
-            model: "gpt-3.5-turbo",
-            //model: "gpt-4",
-            temperature: 1,
-            max_tokens: 128,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-            stop: ["]"],
-        };
-        //console.log(input.model);
-        var concept_path = path.join(__dirname, "commands/editconcept.js");
-        var { concept } = require(concept_path);
-        console.log(concept);
-        var ai_concept = {
-            "role" : "system",
-            "content" : concept,
-        }
-        var messages = [ai_concept];
-        ai_context.push({"role" : "user", "content" : interaction.content});
-        if(ai_context.length > max_remeber_context) {
-            ai_context.shift();
-            ai_context.shift();
-        }
-        messages = messages.concat(ai_context);
-        console.log(messages);
-        input.messages = messages;
-        const responce = await openai.chat.completions.create(input);
-        //console.log(responce.choices)
-        ai_context.push(responce.choices[0].message);
-        interaction.channel.send(responce.choices[0].message.content);
+        const { getResponce } = require('./chatbot.js');
+        responce = await getResponce(interaction.content);
+        interaction.channel.send(responce);
     }
 })
 
 client.login(token);
-
-module.exports = {
-    async clearContext() {
-        ai_context = []
-        return;
-    },
-}
