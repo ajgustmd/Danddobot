@@ -72,9 +72,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
 const messageEventIDList = [["1064804888460136478", "1064804888908931104"], ["777363929155371048", "1157359602401288223"]];
 
-obj = {ai_context : []}
-
-const max_remeber_context = 51;
+const max_remeber_context = 4;
+ai_context = []
 
 client.on(Events.MessageCreate, async interaction => {
     if(interaction.type == 20 || interaction.author == client.user) return;
@@ -83,15 +82,18 @@ client.on(Events.MessageCreate, async interaction => {
         if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
     }
     if(msgAllowed) {
+        // 이 아래부터 다른 하나의 코드가 관리
         var input = {
-            //model: "gpt-3.5-turbo",
-            model: "gpt-4",
+            model: "gpt-3.5-turbo",
+            //model: "gpt-4",
             temperature: 1,
-            max_tokens: 256,
+            max_tokens: 128,
             top_p: 1,
             frequency_penalty: 0,
             presence_penalty: 0,
+            stop: ["]"],
         };
+        //console.log(input.model);
         var concept_path = path.join(__dirname, "commands/editconcept.js");
         var { concept } = require(concept_path);
         console.log(concept);
@@ -100,7 +102,6 @@ client.on(Events.MessageCreate, async interaction => {
             "content" : concept,
         }
         var messages = [ai_concept];
-        var ai_context = obj.ai_context;
         ai_context.push({"role" : "user", "content" : interaction.content});
         if(ai_context.length > max_remeber_context) {
             ai_context.shift();
@@ -119,5 +120,8 @@ client.on(Events.MessageCreate, async interaction => {
 client.login(token);
 
 module.exports = {
-    obj : obj
+    async clearContext() {
+        ai_context = []
+        return;
+    },
 }

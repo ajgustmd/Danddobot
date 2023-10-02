@@ -10,12 +10,11 @@ module.exports = {
     async execute(interaction) {
         var msg = "수정된 컨셉 : ";
         var next_concept = interaction.options.getString('concept');
-        //next_concept = next_concept.slice(1, -1);
         msg += next_concept;
         this.concept = next_concept;
 
-        var { obj } = require(__dirname + '/../index.js');
-        obj.ai_context = [];
+        var { clearContext } = require(__dirname + '/../index.js');
+        clearContext();
 
         return await interaction.reply(msg);
 
