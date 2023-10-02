@@ -26,14 +26,14 @@ module.exports = {
                 .setDescription('top_p 값을 수정합니다')
                 .addNumberOption((option) => option.setName('top_p')
                     .setDescription('top_p')))
-            .addSubcommand((subcommand) => subcommand.setName('Frequency penalty') // 0
-                .setDescription('Frequency penalty 값을 수정합니다')
-                .addNumberOption((option) => option.setName('Frequency penalty')
-                    .setDescription('Frequency penalty')))
-            .addSubcommand((subcommand) => subcommand.setName('Presence penalty') // 0
-                .setDescription('Presence penalty 값을 수정합니다')
-                .addNumberOption((option) => option.setName('Presence penalty')
-                    .setDescription('Presence penalty')))
+            .addSubcommand((subcommand) => subcommand.setName('frequency_penalty') // 0
+                .setDescription('frequency_penalty 값을 수정합니다')
+                .addNumberOption((option) => option.setName('frequency_penalty')
+                    .setDescription('frequency_penalty')))
+            .addSubcommand((subcommand) => subcommand.setName('presence_penalty') // 0
+                .setDescription('presence_penalty 값을 수정합니다')
+                .addNumberOption((option) => option.setName('presence_penalty')
+                    .setDescription('presence_penalty')))
             .addSubcommand((subcommand) => subcommand.setName('concept')
                 .setDescription('AI의 컨셉을 수정합니다')
                 .addStringOption((option) => option.setName('concept')
@@ -44,7 +44,7 @@ module.exports = {
                 .addIntegerOption((option) => option.setName('max_remember')
                     .setDescription('max_remember')))
             .addSubcommand((subcommand) => subcommand.setName('init')
-                .setDescription('챗봇의 모델, temperature, max_tokens, top_p, Frequency penalty, Presence penalty 값을 기본값으로 초기화 합니다'))),
+                .setDescription('챗봇의 모델, temperature, max_tokens, top_p, frequency_penalty, presence_penalty 값을 기본값으로 초기화 합니다'))),
         async execute(interaction) {
             path = '../chatbot.js';
             if (interaction.options.getSubcommandGroup() === 'set') {
@@ -73,22 +73,23 @@ module.exports = {
                     setTop_p(top_p);
                     await interaction.reply('설정된 top_p : ' + top_p);
                 }
-                else if (sub === 'Frequency penalty') {
+                else if (sub === 'frequency_penalty') {
                     const { setFrequency_penalty } = require(path);
-                    frequency_penalty = interaction.options.getNumber('Frequency penalty');
+                    frequency_penalty = interaction.options.getNumber('frequency_penalty');
                     setFrequency_penalty(frequency_penalty);
-                    await interaction.reply('설정된 Frequency penalty : ' + frequency_penalty); 
+                    await interaction.reply('설정된 frequency_penalty : ' + frequency_penalty); 
                 }
-                else if (sub === 'Presence penalty') {
+                else if (sub === 'presence_penalty') {
                     const { setPresence_penalty } = require(path);
-                    presence_penalty = interaction.options.getNumber('Presence penalty');
+                    presence_penalty = interaction.options.getNumber('presence_penalty');
                     setPresence_penalty(presence_penalty);
-                    await interaction.reply('설정된 Presence penalty : ' + presence_penalty); 
+                    await interaction.reply('설정된 presence_penalty : ' + presence_penalty); 
                 }
                 else if (sub === 'concept') {
-                    const { setConcept } = require(path);
+                    const { setConcept, clearContext } = require(path);
                     concept = interaction.options.getString('concept');
                     setConcept(concept);
+                    clearContext();
                     await interaction.reply('설정된 컨셉 : ' + concept);
                 }
                 else if (sub === 'max_remember') {
