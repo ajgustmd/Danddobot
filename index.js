@@ -28,7 +28,6 @@ client.once(Events.ClientReady, c => {
 
 client.on(Events.InteractionCreate, async interaction => {
     if (interaction.isChatInputCommand()) {
-        // 지정된 길드가 아니라면 명령어 사용 거부
         const command = interaction.client.commands.get(interaction.commandName);
 
         if (!command) {
@@ -64,14 +63,14 @@ client.on(Events.InteractionCreate, async interaction => {
 
 });
 
-const { messageEventIDList } = require('./danddo/chatbot/config.json');
+const { activeChannel } = require('./danddo/chatbot/config.json');
 
 creatingResponce = false;
 
 client.on(Events.MessageCreate, async interaction => {
     if(interaction.type == 20 || interaction.author == client.user) return;
     var msgAllowed = false;
-    for(messageEventID of messageEventIDList) {
+    for(messageEventID of activeChannel) {
         if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
     }
     if(msgAllowed) {
