@@ -1,12 +1,18 @@
 const { OpenAI } = require("openai");
-const { openaikey } = require('../../config.json');
+const { openaikey, activeChannel } = require('./config.json');
 
 const openai = new OpenAI({
     apiKey : openaikey
 });
 
 max_remeber_context = 5;
-msgContext = [];
+msgContextDB = {};
+bCreatingMsg = {};
+for(const ChannelInfo of activeChannel) {
+    msgContextDB[ChannelInfo[0]] = {};
+    bCreatingMsg[ChannelInfo[0]] = false;
+}
+
 ai_concept = "너는 '단또봇'라는 이름을 가진 디스코드에서 활동할 고양이 챗봇이야. 앞으로 하게 될 모든 대화에서 고양이 말투로 대답하면 돼. 앞으로 너가 할 모든 말끝에 '~다냥'을 붙여서 고양이 흉내를 내렴. 그리고 무슨 일이 있어도 말끝에 '다냥'을 붙이는 말투를 바꾸지 마. 조금 철없는 말투로 말하렴.";
 
 default_val = {
@@ -29,6 +35,7 @@ debugmode = false;
 
 module.exports = {
     async getResponce(content, guildId, userId) {
+        bCreatingMsg[guildId] = true;
         var input = {
             model: model,
             temperature: temperature,
@@ -45,10 +52,12 @@ module.exports = {
         }
         console.log(input);
 
+        if(!msgContextDB[guildId][userId]) msgContextDB[guildId][userId] = [];
+        var msgContext = msgContextDB[guildId][userId];
+
         var messages = [system];
         msgContext.push({"role" : "user", "content" : content});
-        if(msgContext.length > max_remeber_context) {
-            msgContext.shift();
+        while(msgContext.length > max_remeber_context) {
             msgContext.shift();
         }
         messages = messages.concat(msgContext);
@@ -58,14 +67,22 @@ module.exports = {
             const responce = await openai.chat.completions.create(input);
             //console.log(responce.choices)
             msgContext.push(responce.choices[0].message);
+            msgContextDB[guildId][userId] = msgContext;
             return responce.choices[0].message;
         }
         catch (e) {
             return e.name + " : " + e.message; 
         }
+        finally {
+            bCreatingMsg[guildId] = false;
+        }
     },
 
-    clearContext() { msgContext = []; },
+    clearContext() {
+        for(const k in msgContextDB) {
+            msgContextDB[k] = {};
+        }
+    },
     setModel(_model) { model = _model; },
     setTemperature(_temperature) { temperature = _temperature; },
     setMaxtokens(_max_tokens) { max_tokens = _max_tokens; },
@@ -90,5 +107,7 @@ module.exports = {
 
     getInfo() {
         return "model : " + model + "\ntemperature : " + temperature + "\nmax_tokens : " + max_tokens + "\ntop_p : " + top_p + "\nfrequency penalty : " + frequency_penalty + "\npresence penalty : " + presence_penalty + "\nmax remember : " + (max_remeber_context - 1) / 2;
-    }
+    },
+
+    isCreatingMsg(guildId) { return bCreatingMsg[guildId]; }
 };

@@ -74,21 +74,22 @@ client.on(Events.MessageCreate, async interaction => {
         if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
     }
     if(msgAllowed) {
-        const { getResponce } = require('./danddo/chatbot/chatbot.js');
+        const { getResponce, isCreatingMsg } = require('./danddo/chatbot/chatbot.js');
         try {
-            if(!creatingResponce) {
-                creatingResponce = true;
+            if(!isCreatingMsg(interaction.guildId)) {
                 responce = await getResponce(interaction.content, interaction.guildId, interaction.author.id);
                 interaction.channel.send(responce);
-                creatingResponce = false;
             }
             else {
                 interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+
+                // 메세지 삭제권한이 없으면 터짐 .. 왜 예외처리를 못하는 건 지 잘 모르겠다..
                 interaction.delete();
             }
         }
         catch (e) {
             interaction.channel.send(e.name + " : " + e.message);
+            //console.log(e);
         }
     }
 })
