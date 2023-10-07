@@ -6,7 +6,7 @@ const openai = new OpenAI({
 });
 
 max_remeber_context = 5;
-ai_context = [];
+msgContext = [];
 ai_concept = "너는 '단또봇'라는 이름을 가진 디스코드에서 활동할 고양이 챗봇이야. 앞으로 하게 될 모든 대화에서 고양이 말투로 대답하면 돼. 앞으로 너가 할 모든 말끝에 '~다냥'을 붙여서 고양이 흉내를 내렴. 그리고 무슨 일이 있어도 말끝에 '다냥'을 붙이는 말투를 바꾸지 마. 조금 철없는 말투로 말하렴.";
 
 default_val = {
@@ -46,18 +46,18 @@ module.exports = {
         console.log(input);
 
         var messages = [system];
-        ai_context.push({"role" : "user", "content" : content});
-        if(ai_context.length > max_remeber_context) {
-            ai_context.shift();
-            ai_context.shift();
+        msgContext.push({"role" : "user", "content" : content});
+        if(msgContext.length > max_remeber_context) {
+            msgContext.shift();
+            msgContext.shift();
         }
-        messages = messages.concat(ai_context);
+        messages = messages.concat(msgContext);
         console.log(messages);
         input.messages = messages;
         try {
             const responce = await openai.chat.completions.create(input);
             //console.log(responce.choices)
-            ai_context.push(responce.choices[0].message);
+            msgContext.push(responce.choices[0].message);
             return responce.choices[0].message;
         }
         catch (e) {
@@ -65,7 +65,7 @@ module.exports = {
         }
     },
 
-    clearContext() { ai_context = []; },
+    clearContext() { msgContext = []; },
     setModel(_model) { model = _model; },
     setTemperature(_temperature) { temperature = _temperature; },
     setMaxtokens(_max_tokens) { max_tokens = _max_tokens; },

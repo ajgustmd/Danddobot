@@ -64,7 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 });
 
-const messageEventIDList = [["1064804888460136478", "1064804888908931104"], ["777363929155371048", "1157359602401288223"]];
+const { messageEventIDList } = require('./danddo/chatbot/config.json');
 
 creatingResponce = false;
 
