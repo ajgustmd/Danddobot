@@ -74,8 +74,13 @@ client.on(Events.MessageCreate, async interaction => {
     }
     if(msgAllowed) {
         const { getResponce } = require('./chatbot.js');
-        responce = await getResponce(interaction.content);
-        interaction.channel.send(responce);
+        try {
+            responce = await getResponce(interaction.content);
+            interaction.channel.send(responce);
+        }
+        catch (e) {
+            interaction.channel.send(e.name + " : " + e.message);
+        }
     }
 })
 
