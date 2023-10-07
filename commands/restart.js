@@ -18,6 +18,7 @@ module.exports = {
         .addStringOption((option) => option.setName('서버')
             .setDescription('서버 이름')
             .setRequired(true)
+            // 굳이 Autocomplete 를 두 개를 사용할 필요가 없어보임. 게임-서버 로 묶어서 Autocomplete 하나로 해결하도록 수정
             .setAutocomplete(true)),
     async autocomplete(interaction) {
         const focusedOption = interaction.options.getFocused(true);

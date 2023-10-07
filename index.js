@@ -63,21 +63,16 @@ client.on(Events.InteractionCreate, async interaction => {
 
 });
 
-const { activeChannel } = require('./danddo/chatbot/config.json');
+const { getResponce, isCreatingMsg, isActiveChannel } = require('./danddo/chatbot/chatbot.js');
 
-creatingResponce = false;
+// 메세지 보내기 권한, 삭제 권한
 
 client.on(Events.MessageCreate, async interaction => {
-    if(interaction.type == 20 || interaction.author == client.user) return;
-    var msgAllowed = false;
-    for(messageEventID of activeChannel) {
-        if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
-    }
-    if(msgAllowed) {
-        const { getResponce, isCreatingMsg } = require('./danddo/chatbot/chatbot.js');
+    if(interaction.type == 20 || interaction.author == client.user) return; 
+    if(isActiveChannel(interaction.guildId, interaction.channelId)) {
         try {
             if(!isCreatingMsg(interaction.guildId)) {
-                responce = await getResponce(interaction.content, interaction.guildId, interaction.author.id);
+                responce = await getResponce(interaction.content, interaction.guildId, interaction.channelId, interaction.author.id);
                 interaction.channel.send(responce);
             }
             else {
