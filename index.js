@@ -66,6 +66,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
 const messageEventIDList = [["1064804888460136478", "1064804888908931104"], ["777363929155371048", "1157359602401288223"]];
 
+creatingResponce = false;
+
 client.on(Events.MessageCreate, async interaction => {
     if(interaction.type == 20 || interaction.author == client.user) return;
     var msgAllowed = false;
@@ -75,8 +77,16 @@ client.on(Events.MessageCreate, async interaction => {
     if(msgAllowed) {
         const { getResponce } = require('./chatbot.js');
         try {
-            responce = await getResponce(interaction.content);
-            interaction.channel.send(responce);
+            if(!creatingResponce) {
+                creatingResponce = true;
+                responce = await getResponce(interaction.content);
+                interaction.channel.send(responce);
+                creatingResponce = false;
+            }
+            else {
+                interaction.author.send('메세지가 이미 생성 중 입니다. 나중에 다시 시도해주세요.');
+                interaction.delete();
+            }
         }
         catch (e) {
             interaction.channel.send(e.name + " : " + e.message);

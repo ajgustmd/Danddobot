@@ -6,6 +6,10 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('chatbot')
         .setDescription('단또봇의 챗봇 기능을 조작합니다')
+        .addSubcommand((subcommand) => subcommand.setName('debugmode')
+            .setDescription("디버그 모드를 활성화/비활성화 합니다."))
+        .addSubcommand((subcommand) => subcommand.setName('info')
+            .setDescription("현재 챗봇 정보를 출력합니다"))
         .addSubcommandGroup((group) => group.setName('set')
             .setDescription('챗봇의 설정 값을 수정합니다. 챗봇 설정 값을 수정할 때 챗봇과의 대화 기록은 초기화됩니다')
             .addSubcommand((subcommand) => subcommand.setName('model')
@@ -48,6 +52,17 @@ module.exports = {
             .addSubcommand((subcommand) => subcommand.setName('init')
                 .setDescription('챗봇의 모델, temperature, max_tokens, top_p, frequency_penalty, presence_penalty 값을 기본값으로 초기화 합니다'))),
         async execute(interaction) {
+            grp = interaction.options.getSubcommandGroup();
+            sub = interaction.options.getSubcommand();
+            if (sub === 'debugmode') {
+                const { toggleDebug, isDebugmode } = require(path);
+                toggleDebug();
+                await interaction.reply('디버그 모드 : ' + isDebugmode());
+            }
+            else if (sub === 'info') {
+                const { getInfo } = require(path);
+                await interaction.reply(getInfo());
+            }
             if (interaction.options.getSubcommandGroup() === 'set') {
                 sub = interaction.options.getSubcommand();
                 if (sub === 'model') {

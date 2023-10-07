@@ -25,6 +25,8 @@ top_p = default_val.top_p;
 frequency_penalty = default_val.frequency_penalty;
 presence_penalty = default_val.presence_penalty;
 
+debugmode = false;
+
 module.exports = {
     async getResponce(content) {
         var input = {
@@ -58,41 +60,15 @@ module.exports = {
         return responce.choices[0].message;
     },
 
-    clearContext() {
-        ai_context = [];
-    },
-
-    setModel(_model) {
-        model = _model;
-    },
-
-    setTemperature(_temperature) {
-        temperature = _temperature;
-    },
-
-    setMaxtokens(_max_tokens) {
-        max_tokens = _max_tokens;
-    },
-
-    setTop_p(_top_p) {
-        top_p = _top_p;
-    },
-
-    setFrequency_penalty(_frequency_penalty) {
-        frequency_penalty = _frequency_penalty;
-    },
-
-    setPresence_penalty(_presence_penalty) {
-        presence_penalty = _presence_penalty;
-    },
-
-    setConcept(_concept) {
-        ai_concept = _concept;
-    },
-
-    setMaxremember(_max_remember) {
-        max_remeber_context = _max_remember * 2 + 1;
-    },
+    clearContext() { ai_context = []; },
+    setModel(_model) { model = _model; },
+    setTemperature(_temperature) { temperature = _temperature; },
+    setMaxtokens(_max_tokens) { max_tokens = _max_tokens; },
+    setTop_p(_top_p) { top_p = _top_p; },
+    setFrequency_penalty(_frequency_penalty) { frequency_penalty = _frequency_penalty; },
+    setPresence_penalty(_presence_penalty) { presence_penalty = _presence_penalty; },
+    setConcept(_concept) { ai_concept = _concept; },
+    setMaxremember(_max_remember) { max_remeber_context = _max_remember * 2 + 1; },
 
     initVal() {
         model = default_val.model;
@@ -102,4 +78,12 @@ module.exports = {
         frequency_penalty = default_val.frequency_penalty;
         presence_penalty = default_val.presence_penalty;
     },
+
+    // debug mode
+    toggleDebug() { debugmode = !debugmode; },
+    isDebugmode() { return debugmode; },
+
+    getInfo() {
+        return "model : " + model + "\ntemperature : " + temperature + "\nmax_tokens : " + max_tokens + "\ntop_p : " + top_p + "\nfrequency penalty : " + frequency_penalty + "\npresence penalty : " + presence_penalty + "\nmax remember : " + (max_remeber_context - 1) / 2;
+    }
 };
