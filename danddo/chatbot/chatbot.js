@@ -6,6 +6,8 @@ const openai = new OpenAI({
 });
 
 max_remeber_context = 5;
+
+// 모든 것을 메모리에 저장할 수 없기에 DB 사용을 고려해야 함
 msgContextDB = {};
 bCreatingMsg = {};
 for(const ChannelInfo of activeChannel) {
