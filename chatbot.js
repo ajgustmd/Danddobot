@@ -12,18 +12,18 @@ ai_concept = "너는 '단또봇'라는 이름을 가진 디스코드에서 활�
 default_val = {
     model : "gpt-3.5-turbo",
     temperature : 1,
-    max_tokens : 128,
+    max_tokens : 512,
     top_p : 1,
     frequency_penalty : 0,
     presence_penalty : 0,
 };
 
-model = "gpt-3.5-turbo";
-temperature = 1;
-max_tokens = 128;
-top_p = 1;
-frequency_penalty = 0;
-presence_penalty = 0;
+model = default_val.model;
+temperature = default_val.temperature;
+max_tokens = default_val.max_tokens;
+top_p = default_val.top_p;
+frequency_penalty = default_val.frequency_penalty;
+presence_penalty = default_val.presence_penalty;
 
 module.exports = {
     async getResponce(content) {

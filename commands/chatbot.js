@@ -1,11 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
+const path = '../chatbot.js';
+const { clearContext } = require(path);
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('chatbot')
         .setDescription('단또봇의 챗봇 기능을 조작합니다')
         .addSubcommandGroup((group) => group.setName('set')
-            .setDescription('챗봇의 설정 값을 수정합니다')
+            .setDescription('챗봇의 설정 값을 수정합니다. 챗봇 설정 값을 수정할 때 챗봇과의 대화 기록은 초기화됩니다')
             .addSubcommand((subcommand) => subcommand.setName('model')
                 .setDescription('GPT 모델을 수정합니다')
                 .addStringOption((option) => option.setName('modelname')
@@ -46,7 +48,6 @@ module.exports = {
             .addSubcommand((subcommand) => subcommand.setName('init')
                 .setDescription('챗봇의 모델, temperature, max_tokens, top_p, frequency_penalty, presence_penalty 값을 기본값으로 초기화 합니다'))),
         async execute(interaction) {
-            path = '../chatbot.js';
             if (interaction.options.getSubcommandGroup() === 'set') {
                 sub = interaction.options.getSubcommand();
                 if (sub === 'model') {
@@ -86,10 +87,9 @@ module.exports = {
                     await interaction.reply('설정된 presence_penalty : ' + presence_penalty); 
                 }
                 else if (sub === 'concept') {
-                    const { setConcept, clearContext } = require(path);
+                    const { setConcept } = require(path);
                     concept = interaction.options.getString('concept');
                     setConcept(concept);
-                    clearContext();
                     await interaction.reply('설정된 컨셉 : ' + concept);
                 }
                 else if (sub === 'max_remember') {
@@ -103,6 +103,7 @@ module.exports = {
                     initVal();
                     await interaction.reply('설정값이 초기화 되었습니다');
                 }
+                clearContext();
             }
         }
 }

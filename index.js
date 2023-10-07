@@ -28,6 +28,7 @@ client.once(Events.ClientReady, c => {
 
 client.on(Events.InteractionCreate, async interaction => {
     if (interaction.isChatInputCommand()) {
+        // 지정된 길드가 아니라면 명령어 사용 거부
         const command = interaction.client.commands.get(interaction.commandName);
 
         if (!command) {
