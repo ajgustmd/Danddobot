@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const path = '../chatbot.js';
+const path = '../danddo/chatbot/chatbot.js';
 const { clearContext } = require(path);
 
 module.exports = {

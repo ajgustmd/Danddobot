@@ -75,16 +75,16 @@ client.on(Events.MessageCreate, async interaction => {
         if((messageEventID[0] === interaction.guildId) && (messageEventID[1] === interaction.channelId)) msgAllowed = true;
     }
     if(msgAllowed) {
-        const { getResponce } = require('./chatbot.js');
+        const { getResponce } = require('./danddo/chatbot/chatbot.js');
         try {
             if(!creatingResponce) {
                 creatingResponce = true;
-                responce = await getResponce(interaction.content);
+                responce = await getResponce(interaction.content, interaction.guildId, interaction.author.id);
                 interaction.channel.send(responce);
                 creatingResponce = false;
             }
             else {
-                interaction.author.send('메세지가 이미 생성 중 입니다. 나중에 다시 시도해주세요.');
+                interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
                 interaction.delete();
             }
         }

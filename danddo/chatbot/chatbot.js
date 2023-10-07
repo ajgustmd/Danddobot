@@ -1,5 +1,5 @@
 const { OpenAI } = require("openai");
-const { openaikey } = require('./config.json');
+const { openaikey } = require('../../config.json');
 
 const openai = new OpenAI({
     apiKey : openaikey
@@ -28,7 +28,7 @@ presence_penalty = default_val.presence_penalty;
 debugmode = false;
 
 module.exports = {
-    async getResponce(content) {
+    async getResponce(content, guildId, userId) {
         var input = {
             model: model,
             temperature: temperature,
@@ -54,10 +54,15 @@ module.exports = {
         messages = messages.concat(ai_context);
         console.log(messages);
         input.messages = messages;
-        const responce = await openai.chat.completions.create(input);
-        //console.log(responce.choices)
-        ai_context.push(responce.choices[0].message);
-        return responce.choices[0].message;
+        try {
+            const responce = await openai.chat.completions.create(input);
+            //console.log(responce.choices)
+            ai_context.push(responce.choices[0].message);
+            return responce.choices[0].message;
+        }
+        catch (e) {
+            return e.name + " : " + e.message; 
+        }
     },
 
     clearContext() { ai_context = []; },
