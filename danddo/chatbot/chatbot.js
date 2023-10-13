@@ -19,12 +19,17 @@ ai_concept = "너는 '단또봇'라는 이름을 가진 디스코드에서 활�
 
 default_val = {
     model : "gpt-3.5-turbo",
-    temperature : 1.07,
+    temperature : 1,
     max_tokens : 900,
     top_p : 1,
     frequency_penalty : 0,
     presence_penalty : 0,
 };
+
+minFriendship = -300;
+minDecreaseFriendship = -10;
+maxIncreaseFriendship = 7;
+defaultFriendship = 10;
 
 model = default_val.model;
 temperature = default_val.temperature;
@@ -39,6 +44,20 @@ function getCombinedKey(guildId, channelId) {
     return `${guildId}-${channelId}`;
 }
 
+function getPrompt(friendship) {
+    if(friendship >= 10) return prompt.favorable;
+    else if(friendship >= 5) return prompt.friendly;
+    else if(friendship >= -5) return prompt.neutral;
+    else return prompt.hostile;
+}
+
+function getdFriendlyMultiplier(dfriendly) {
+    if(dfriendly > 0) {
+        return Math.random() * 0.7 + 0.3; 
+    }
+    else return Math.random() + 0.5;
+}
+
 module.exports = {
     async getDevResponce(content) {
         bDevCreatingMsg = true;
@@ -49,7 +68,6 @@ module.exports = {
             top_p: top_p,
             frequency_penalty: frequency_penalty,
             presence_penalty: presence_penalty,
-            //stop: ["]"],
         };
 
         var system = {
@@ -70,7 +88,7 @@ module.exports = {
             const responce = await openai.chat.completions.create(input);
             //console.log(responce.choices)
             devContext.push(responce.choices[0].message);
-            return responce.choices[0].message;
+            return responce.choices[0].message.content;
         }
         catch (e) {
             return e.name + " : " + e.message; 
@@ -80,10 +98,78 @@ module.exports = {
         }
     },
 
-    async getResponce(content, userId) {
+    async getResponce(content, guildId, channelId, userId) {
+        bCreatingMsg[userId] = true;
+        bCreatingMsg[getCombinedKey(guildId, channelId)] = true;
+        var judge = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo-16k",
+            temperature: 1,
+            max_tokens: 64,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            stop: ["]"],
+            messages: [{
+                "role" : "system",
+                "content" : prompt.judge
+            }, {
+                "role" : "user",
+                "content" : content
+            }]
+        });
 
+        judge = judge.choices[0].message.content;
 
-        return await "테스트조이고";
+        judge = Number(judge.replace(/[^0-9\-]/g, ""));
+        var dfriendly = judge;
+        dfriendly *= getdFriendlyMultiplier(dfriendly);
+
+        dfriendly = Math.min(Math.max(dfriendly, minDecreaseFriendship), maxIncreaseFriendship);
+
+        if(!chatbotDB[userId]) chatbotDB[userId] = { friendship: defaultFriendship, context: []};
+        var friendship = chatbotDB[userId].friendship;
+        friendship += dfriendly;
+        friendship = Math.max(friendship, minFriendship);
+        var system = getPrompt(friendship);
+        chatbotDB[userId].friendship = friendship;
+
+        const max_remember = 4;
+        var context = chatbotDB[userId].context;
+        while(context.length > max_remember) {
+            context.shift();
+        }
+        context.push({"role" : "user", "content" : content});
+        var messages = [{"role" : "system", "content" : system}];
+        messages = messages.concat(context);
+        console.log(messages);
+        try {
+            const responce = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo-16k",
+                temperature: 1.07,
+                max_tokens: 900,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0,
+                messages: messages
+            });
+            context.push(responce.choices[0].message);
+            if(debugmode) {
+                return responce.choices[0].message.content + "\n[debug]\n호감도 변화량 : " + dfriendly.toFixed(2) + "\n현재 호감도 : " + chatbotDB[userId].friendship.toFixed(2);
+            }
+            return responce.choices[0].message.content;
+        }
+        catch (e) {
+            console.log(e);
+            context.pop();
+            if(debugmode) {
+                return e.name + " : " + e.message;
+            }
+            return "에러가 발생했다냥..";
+        }
+        finally {
+            bCreatingMsg[userId] = false;
+            bCreatingMsg[getCombinedKey(guildId, channelId)] = false;
+        }
     },
 
     clearContext() {
@@ -115,7 +201,7 @@ module.exports = {
         return "model : " + model + "\ntemperature : " + temperature + "\nmax_tokens : " + max_tokens + "\ntop_p : " + top_p + "\nfrequency penalty : " + frequency_penalty + "\npresence penalty : " + presence_penalty + "\nmax remember : " + max_remeber_context / 2;
     },
 
-    isCreatingMsg(guildId, channelId) { return bCreatingMsg[getCombinedKey(guildId, channelId)]; },
+    isCreatingMsg(guildId, channelId, userId) { return bCreatingMsg[getCombinedKey(guildId, channelId)] || bCreatingMsg[userId]; },
     isDevCreatingMsg() { return bDevCreatingMsg; },
 
     isActiveChannel(guildId, channelId) {
@@ -133,7 +219,7 @@ module.exports = {
 
     // Database
     saveDB() {
-
+        
     },
 
     loadDB() {

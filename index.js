@@ -92,8 +92,8 @@ client.on(Events.MessageCreate, async interaction => {
     }
     else if(isActiveChannel(guildId, channelId)) {
         try {
-            if(!isCreatingMsg(guildId, channelId)) {
-                responce = await getResponce(interaction.content, userId);
+            if(!isCreatingMsg(guildId, channelId, userId)) {
+                responce = await getResponce(interaction.content, guildId, channelId, userId);
                 interaction.channel.send(responce);
             }
             else {
@@ -104,7 +104,6 @@ client.on(Events.MessageCreate, async interaction => {
         catch (e) {
             interaction.channel.send("에러가 발생했다냥..");
             console.log(e);
-            console.log(guildId);
         }
     }
 })
