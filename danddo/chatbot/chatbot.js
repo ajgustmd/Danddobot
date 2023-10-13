@@ -1,5 +1,5 @@
 const { OpenAI } = require("openai");
-const { openaikey, activeChannel, devChannel } = require('./config.json');
+const { openaikey, activeChannel, devChannel, debugChannel } = require('./config.json');
 const prompt = require('./prompt.json');
 const fs = require('node:fs');
 
@@ -81,6 +81,8 @@ function loadDB() {
         return {};
     }
 }
+
+function isDebugChannel(guildId, channelId) { return debugmode && (debugChannel === getCombinedKey(guildId, channelId)); }
 
 module.exports = {
     async getDevResponce(content) {
@@ -176,7 +178,7 @@ module.exports = {
                 messages: messages
             });
             context.push(responce.choices[0].message);
-            if(debugmode) {
+            if(isDebugChannel(guildId, channelId)) {
                 return responce.choices[0].message.content + "\n[debug]\n호감도 변화량 : " + dfriendly.toFixed(2) + "\n현재 호감도 : " + chatbotDB[userId].friendship.toFixed(2);
             }
             return responce.choices[0].message.content;
@@ -184,7 +186,7 @@ module.exports = {
         catch (e) {
             console.log(e);
             context.pop();
-            if(debugmode) {
+            if(isDebugChannel(guildId, channelId)) {
                 return e.name + " : " + e.message;
             }
             return "에러가 발생했다냥..";
