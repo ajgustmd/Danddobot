@@ -1,15 +1,18 @@
 const { OpenAI } = require("openai");
 const { openaikey, activeChannel, devChannel } = require('./config.json');
 const prompt = require('./prompt.json');
+const fs = require('node:fs');
 
 const openai = new OpenAI({
     apiKey : openaikey
 });
 
+const dbPath = './database.json';
+
 max_remeber_context = 4;
 
 // 프로그램 규모가 작아서 DB는 그냥 메모리로 사용하기로 결정
-chatbotDB = {}; // chatbotDB[userId] = { friendship, context }
+chatbotDB = loadDB(); // chatbotDB[userId] = { friendship, context }
 bCreatingMsg = {}; // bCreatingMsg[combinedId or userId]
 
 devContext = [];
@@ -26,10 +29,9 @@ default_val = {
     presence_penalty : 0,
 };
 
-minFriendship = -300;
 minDecreaseFriendship = -10;
-maxIncreaseFriendship = 7;
-defaultFriendship = 10;
+maxIncreaseFriendship = 6;
+defaultFriendship = 0;
 
 model = default_val.model;
 temperature = default_val.temperature;
@@ -40,22 +42,44 @@ presence_penalty = default_val.presence_penalty;
 
 debugmode = false;
 
+setInterval(saveDB, 1000 * 60 * 30);
+
 function getCombinedKey(guildId, channelId) {
     return `${guildId}-${channelId}`;
 }
 
 function getPrompt(friendship) {
-    if(friendship >= 10) return prompt.favorable;
-    else if(friendship >= 5) return prompt.friendly;
-    else if(friendship >= -5) return prompt.neutral;
+    if(friendship >= 23) return prompt.favorable;
+    else if(friendship >= 10) return prompt.friendly;
+    else if(friendship >= -3) return prompt.neutral;
     else return prompt.hostile;
 }
 
 function getdFriendlyMultiplier(dfriendly) {
     if(dfriendly > 0) {
-        return Math.random() * 0.7 + 0.3; 
+        return Math.random() * 0.7 + 0.2; 
     }
-    else return Math.random() + 0.5;
+    else return Math.random() * 1.5 + 0.5;
+}
+
+// Database
+function saveDB() {
+    try {
+        fs.writeFileSync(dbPath, JSON.stringify(chatbotDB));
+    } catch (e) {
+        return;
+    }
+}
+
+function loadDB() {
+    try {
+        var db = JSON.parse(fs.readFileSync(dbPath));
+        if(db) return db;
+        else return {};
+    } catch (e) {
+        console.log(e);
+        return {};
+    }
 }
 
 module.exports = {
@@ -129,7 +153,6 @@ module.exports = {
         if(!chatbotDB[userId]) chatbotDB[userId] = { friendship: defaultFriendship, context: []};
         var friendship = chatbotDB[userId].friendship;
         friendship += dfriendly;
-        friendship = Math.max(friendship, minFriendship);
         var system = getPrompt(friendship);
         chatbotDB[userId].friendship = friendship;
 
@@ -217,13 +240,5 @@ module.exports = {
         return getCombinedKey(guildId, channelId) === devChannel;
     },
 
-    // Database
-    saveDB() {
-        
-    },
-
-    loadDB() {
-
-    },
-
+    saveDB,
 };

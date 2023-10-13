@@ -10,6 +10,8 @@ module.exports = {
             .setDescription("디버그 모드를 활성화/비활성화 합니다."))
         .addSubcommand((subcommand) => subcommand.setName('info')
             .setDescription("현재 챗봇 정보를 출력합니다"))
+        .addSubcommand((subcommand) => subcommand.setName('savedb')
+            .setDescription('호감도와 문맥이 저장된 유저별 프로필 DB를 저장합니다'))
         .addSubcommandGroup((group) => group.setName('set')
             .setDescription('챗봇의 설정 값을 수정합니다. 챗봇 설정 값을 수정할 때 챗봇과의 대화 기록은 초기화됩니다')
             .addSubcommand((subcommand) => subcommand.setName('model')
@@ -62,6 +64,11 @@ module.exports = {
             else if (sub === 'info') {
                 const { getInfo } = require(path);
                 await interaction.reply(getInfo());
+            }
+            else if (sub === 'savedb') {
+                const { saveDB } = require(path);
+                saveDB();
+                await interaction.reply("프로필이 저장되었다냥~");
             }
             if (interaction.options.getSubcommandGroup() === 'set') {
                 sub = interaction.options.getSubcommand();
