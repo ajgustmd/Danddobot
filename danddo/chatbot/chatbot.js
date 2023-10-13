@@ -42,8 +42,6 @@ presence_penalty = default_val.presence_penalty;
 
 debugmode = false;
 
-setInterval(saveDB, 1000 * 60 * 30);
-
 function getCombinedKey(guildId, channelId) {
     return `${guildId}-${channelId}`;
 }

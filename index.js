@@ -24,6 +24,15 @@ for (const file of commandFiles) {
 
 client.once(Events.ClientReady, c => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+
+    client.channels.fetch("1162378202677792829").then(channel => {
+        //channel.send("서버가 켜졌다냥~");
+        const { saveDB } = require('./danddo/chatbot/chatbot.js');
+        setInterval(() => {
+            saveDB();
+            //channel.send("서버가 저장되었다냥~");
+        }, 1000 * 60 * 60);
+    });
 });
 
 client.on(Events.InteractionCreate, async interaction => {
