@@ -63,16 +63,19 @@ client.on(Events.InteractionCreate, async interaction => {
 
 });
 
-const { getResponce, isCreatingMsg, isActiveChannel } = require('./danddo/chatbot/chatbot.js');
+const { getResponce, getDevResponce, isCreatingMsg, isActiveChannel, isDevChannel, isDevCreatingMsg } = require('./danddo/chatbot/chatbot.js');
 
 // 메세지 보내기 권한, 삭제 권한
 
 client.on(Events.MessageCreate, async interaction => {
-    if(interaction.type == 20 || interaction.author == client.user) return; 
-    if(isActiveChannel(interaction.guildId, interaction.channelId)) {
+    if(interaction.type == 20 || interaction.author == client.user) return;
+    var guildId = interaction.guildId;
+    var channelId = interaction.channelId;
+    var userId = interaction.author.id;
+    if(isDevChannel(guildId, channelId)) {
         try {
-            if(!isCreatingMsg(interaction.guildId)) {
-                responce = await getResponce(interaction.content, interaction.guildId, interaction.channelId, interaction.author.id);
+            if(!isDevCreatingMsg()) {
+                responce = await getDevResponce(interaction.content);
                 interaction.channel.send(responce);
             }
             else {
@@ -84,6 +87,22 @@ client.on(Events.MessageCreate, async interaction => {
         }
         catch (e) {
             interaction.channel.send(e.name + " : " + e.message);
+            //console.log(e);
+        }
+    }
+    else if(isActiveChannel(guildId, channelId)) {
+        try {
+            if(!isCreatingMsg(gulidId, channelId)) {
+                responce = await getResponce(interaction.content, userId);
+                interaction.channel.send(responce);
+            }
+            else {
+                interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                interaction.delete();
+            }
+        }
+        catch (e) {
+            interaction.channel.send("에러가 발생했다냥..");
             //console.log(e);
         }
     }
