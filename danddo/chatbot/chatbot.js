@@ -1,14 +1,15 @@
 const { OpenAI } = require("openai");
 const { openaikey, activeChannel, devChannel } = require('./config.json');
+const prompt = require('./prompt.json');
 
 const openai = new OpenAI({
     apiKey : openaikey
 });
 
-max_remeber_context = 5;
+max_remeber_context = 4;
 
 // 프로그램 규모가 작아서 DB는 그냥 메모리로 사용하기로 결정
-msgContextDB = {}; // msgContextDB[userId]
+chatbotDB = {}; // chatbotDB[userId] = { friendship, context }
 bCreatingMsg = {}; // bCreatingMsg[combinedId or userId]
 
 devContext = [];
@@ -48,7 +49,7 @@ module.exports = {
             top_p: top_p,
             frequency_penalty: frequency_penalty,
             presence_penalty: presence_penalty,
-            stop: ["]"],
+            //stop: ["]"],
         };
 
         var system = {
@@ -57,21 +58,18 @@ module.exports = {
         }
         console.log(input);
 
-        var msgContext = devContext;
-
         var messages = [system];
-        msgContext.push({"role" : "user", "content" : content});
-        while(msgContext.length > max_remeber_context) {
-            msgContext.shift();
+        while(devContext.length > max_remeber_context) {
+            devContext.shift();
         }
-        messages = messages.concat(msgContext);
+        devContext.push({"role" : "user", "content" : content});
+        messages = messages.concat(devContext);
         console.log(messages);
         input.messages = messages;
         try {
             const responce = await openai.chat.completions.create(input);
             //console.log(responce.choices)
-            msgContext.push(responce.choices[0].message);
-            devContext = msgContext;
+            devContext.push(responce.choices[0].message);
             return responce.choices[0].message;
         }
         catch (e) {
@@ -83,7 +81,9 @@ module.exports = {
     },
 
     async getResponce(content, userId) {
-        return "테스트조이고";
+
+
+        return await "테스트조이고";
     },
 
     clearContext() {
@@ -96,7 +96,7 @@ module.exports = {
     setFrequency_penalty(_frequency_penalty) { frequency_penalty = _frequency_penalty; },
     setPresence_penalty(_presence_penalty) { presence_penalty = _presence_penalty; },
     setConcept(_concept) { ai_concept = _concept; },
-    setMaxremember(_max_remember) { max_remeber_context = _max_remember * 2 + 1; },
+    setMaxremember(_max_remember) { max_remeber_context = _max_remember * 2; },
 
     initVal() {
         model = default_val.model;
@@ -112,7 +112,7 @@ module.exports = {
     isDebugmode() { return debugmode; },
 
     getInfo() {
-        return "model : " + model + "\ntemperature : " + temperature + "\nmax_tokens : " + max_tokens + "\ntop_p : " + top_p + "\nfrequency penalty : " + frequency_penalty + "\npresence penalty : " + presence_penalty + "\nmax remember : " + (max_remeber_context - 1) / 2;
+        return "model : " + model + "\ntemperature : " + temperature + "\nmax_tokens : " + max_tokens + "\ntop_p : " + top_p + "\nfrequency penalty : " + frequency_penalty + "\npresence penalty : " + presence_penalty + "\nmax remember : " + max_remeber_context / 2;
     },
 
     isCreatingMsg(guildId, channelId) { return bCreatingMsg[getCombinedKey(guildId, channelId)]; },
