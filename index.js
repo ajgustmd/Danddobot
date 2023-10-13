@@ -88,10 +88,13 @@ client.on(Events.MessageCreate, async interaction => {
                 interaction.channel.send(responce);
             }
             else {
-                interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
-
-                // 메세지 삭제권한이 없으면 터짐 .. 왜 예외처리를 못하는 건 지 잘 모르겠다..
-                interaction.delete();
+                if(interaction.guild.members.me.permissionsIn(interaction.channel).has('ManageMessages')) {
+                    interaction.delete();
+                    interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                }
+                else {
+                    interaction.channel.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
+                }
             }
         }
         catch (e) {
@@ -106,8 +109,13 @@ client.on(Events.MessageCreate, async interaction => {
                 interaction.channel.send(responce);
             }
             else {
-                interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
-                interaction.delete();
+                if(interaction.guild.members.me.permissionsIn(interaction.channel).has('ManageMessages')) {
+                    interaction.delete();
+                    interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                }
+                else {
+                    interaction.channel.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
+                }
             }
         }
         catch (e) {
