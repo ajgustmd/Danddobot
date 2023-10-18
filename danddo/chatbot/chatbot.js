@@ -29,9 +29,20 @@ default_val = {
     presence_penalty : 0,
 };
 
-minDecreaseFriendship = -10;
-maxIncreaseFriendship = 6;
+minDecreaseFriendship = -12;
+maxIncreaseFriendship = 9;
 defaultFriendship = 0;
+
+friend_factor = {
+    positive_a : 1.3,
+    positive_b : 0.2,
+    negative_a : 1.7,
+    negative_b : 0.7,
+
+    favorable : 25,
+    friendly : 13,
+    neutral : -5
+}
 
 model = default_val.model;
 temperature = default_val.temperature;
@@ -40,24 +51,24 @@ top_p = default_val.top_p;
 frequency_penalty = default_val.frequency_penalty;
 presence_penalty = default_val.presence_penalty;
 
-debugmode = false;
+debugmode = true;
 
 function getCombinedKey(guildId, channelId) {
     return `${guildId}-${channelId}`;
 }
 
 function getPrompt(friendship) {
-    if(friendship >= 23) return prompt.favorable;
-    else if(friendship >= 10) return prompt.friendly;
-    else if(friendship >= -3) return prompt.neutral;
+    if(friendship >= friend_factor.favorable) return prompt.favorable;
+    else if(friendship >= friend_factor.friendly) return prompt.friendly;
+    else if(friendship >= friend_factor.neutral) return prompt.neutral;
     else return prompt.hostile;
 }
 
 function getdFriendlyMultiplier(dfriendly) {
     if(dfriendly > 0) {
-        return Math.random() * 0.7 + 0.2; 
+        return Math.random() * friend_factor.positive_a + friend_factor.positive_b; 
     }
-    else return Math.random() * 1.5 + 0.5;
+    else return Math.random() * friend_factor.negative_a + friend_factor.negative_b;
 }
 
 // Database
@@ -241,4 +252,9 @@ module.exports = {
     },
 
     saveDB,
+
+    getFriendship(userId) {
+        if(chatbotDB[userId] == undefined) return undefined;
+        return chatbotDB[userId].friendship;
+    }
 };

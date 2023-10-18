@@ -52,7 +52,14 @@ module.exports = {
                 .addIntegerOption((option) => option.setName('max_remember')
                     .setDescription('max_remember')))
             .addSubcommand((subcommand) => subcommand.setName('init')
-                .setDescription('챗봇의 모델, temperature, max_tokens, top_p, frequency_penalty, presence_penalty 값을 기본값으로 초기화 합니다'))),
+                .setDescription('챗봇의 모델, temperature, max_tokens, top_p, frequency_penalty, presence_penalty 값을 기본값으로 초기화 합니다')))
+        .addSubcommandGroup((group) => group.setName('get')
+            .setDescription("챗봇과 관련된 값을 얻습니다")
+            .addSubcommand((subcommand) => subcommand.setName('friendship')
+                .setDescription('특정 유저의 호감도 값을 출력합니다')
+                .addStringOption((option) => option.setName('user_id')
+                    .setDescription('유저의 아이디 입력 ( developer 모드로 확인 )')
+                    .setRequired(true)))),
         async execute(interaction) {
             grp = interaction.options.getSubcommandGroup();
             sub = interaction.options.getSubcommand();
@@ -70,8 +77,7 @@ module.exports = {
                 saveDB();
                 await interaction.reply("프로필이 저장되었다냥~");
             }
-            if (interaction.options.getSubcommandGroup() === 'set') {
-                sub = interaction.options.getSubcommand();
+            if (grp === 'set') {
                 if (sub === 'model') {
                     const { setModel } = require(path);
                     model = interaction.options.getString('modelname');
@@ -126,6 +132,19 @@ module.exports = {
                     await interaction.reply('설정값이 초기화 되었습니다');
                 }
                 clearContext();
+            }
+            if(grp === 'get') {
+                if(sub === 'friendship') {
+                    const { getFriendship } = require(path);
+                    var friendship = getFriendship(userid);
+                    if(friendship == undefined) {
+                        return "호감도가 존재하지 않습니다";
+                    }
+                    var userid = interaction.options.getString('user_id');
+                    interaction.client.users.fetch(userid).then((user) => {
+                        interaction.reply(user.displayName + "의 호감도 : " + friendship);
+                    });
+                }
             }
         }
 }
