@@ -84,16 +84,17 @@ client.on(Events.MessageCreate, async interaction => {
     if(isDevChannel(guildId, channelId)) {
         try {
             if(!isDevCreatingMsg()) {
+                interaction.channel.sendTyping();
                 responce = await getDevResponce(interaction.content);
                 interaction.channel.send(responce);
             }
             else {
                 if(interaction.guild.members.me.permissionsIn(interaction.channel).has('ManageMessages')) {
-                    interaction.delete();
-                    interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                    await interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                    setTimeout(() => { interaction.delete(); }, 400);
                 }
                 else {
-                    interaction.channel.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
+                    interaction.reply('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
                 }
             }
         }
@@ -105,16 +106,31 @@ client.on(Events.MessageCreate, async interaction => {
     else if(isActiveChannel(guildId, channelId)) {
         try {
             if(!isCreatingMsg(guildId, channelId, userId)) {
+                var typing = true;
+                var timeoutId;
+                interaction.channel.sendTyping();
+                func = () => {
+                    timeoutId = setTimeout(() => {
+                        interaction.channel.sendTyping();
+                        if(typing) {
+                            func();
+                        }
+                    }, 9000 + Math.random() * 10000);
+                }
+                func();
+
                 responce = await getResponce(interaction.content, guildId, channelId, userId);
+                clearTimeout(timeoutId);
                 interaction.channel.send(responce);
+                typing = false;
             }
             else {
                 if(interaction.guild.members.me.permissionsIn(interaction.channel).has('ManageMessages')) {
-                    interaction.delete();
-                    interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                    await interaction.author.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.');
+                    setTimeout(() => { interaction.delete(); }, Math.random() * 800);
                 }
                 else {
-                    interaction.channel.send('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
+                    interaction.reply('메세지가 이미 생성 중이다냥. 나중에 다시 시도해주라냥.')
                 }
             }
         }

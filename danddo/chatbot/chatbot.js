@@ -29,19 +29,22 @@ default_val = {
     presence_penalty : 0,
 };
 
-minDecreaseFriendship = -12;
-maxIncreaseFriendship = 9;
-defaultFriendship = 0;
+minDecreaseFriendship = -25;
+maxIncreaseFriendship = 20;
+defaultFriendship = 21;
+
+minFriendship = -50;
+maxFriendship = 50;
 
 friend_factor = {
-    positive_a : 1.3,
+    positive_a : 4,
     positive_b : 0.2,
-    negative_a : 1.7,
+    negative_a : 5,
     negative_b : 0.7,
 
-    favorable : 25,
-    friendly : 13,
-    neutral : -5
+    favorable : 40,
+    friendly : 20,
+    neutral : -10
 }
 
 model = default_val.model;
@@ -164,6 +167,7 @@ module.exports = {
         if(!chatbotDB[userId]) chatbotDB[userId] = { friendship: defaultFriendship, context: []};
         var friendship = chatbotDB[userId].friendship;
         friendship += dfriendly;
+        friendship = Math.max(Math.min(friendship, maxFriendship), minFriendship);
         var system = getPrompt(friendship);
         chatbotDB[userId].friendship = friendship;
 
@@ -209,6 +213,13 @@ module.exports = {
     clearContext() {
         devContext = [];
     },
+
+    chatbotClearContext() {
+        for(key in chatbotDB) {
+            chatbotDB[key].context = [];
+        }
+    },
+
     setModel(_model) { model = _model; },
     setTemperature(_temperature) { temperature = _temperature; },
     setMaxtokens(_max_tokens) { max_tokens = _max_tokens; },

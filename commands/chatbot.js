@@ -12,6 +12,8 @@ module.exports = {
             .setDescription("현재 챗봇 정보를 출력합니다"))
         .addSubcommand((subcommand) => subcommand.setName('savedb')
             .setDescription('호감도와 문맥이 저장된 유저별 프로필 DB를 저장합니다'))
+        .addSubcommand((subcommand) => subcommand.setName('cleardbcontext')
+            .setDescription('유저 DB에 저장된 대화 문맥을 초기화합니다. 유저의 호감도는 초기화하지 않습니다'))
         .addSubcommandGroup((group) => group.setName('set')
             .setDescription('챗봇의 설정 값을 수정합니다. 챗봇 설정 값을 수정할 때 챗봇과의 대화 기록은 초기화됩니다')
             .addSubcommand((subcommand) => subcommand.setName('model')
@@ -76,6 +78,11 @@ module.exports = {
                 const { saveDB } = require(path);
                 saveDB();
                 await interaction.reply("프로필이 저장되었다냥~");
+            }
+            else if (sub === 'cleardbcontext') {
+                const { chatbotClearContext } = require(path);
+                chatbotClearContext();
+                await interaction.reply("유저 DB 대화 문맥이 초기화되었다냥~");
             }
             if (grp === 'set') {
                 if (sub === 'model') {
